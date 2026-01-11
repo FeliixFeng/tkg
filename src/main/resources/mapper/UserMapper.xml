@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wtu.mapper.UserMapper">
+    <!-- 用户注册 -->
+    <insert id="register">
+        insert
+        into
+            user(username, password, phone, user_type, avatar)
+        value
+            (#{username}, #{password}, #{phone}, #{userType}, #{avatar})
+    </insert>
+
+    <!-- 修改用户信息 -->
+    <update id="update">
+        update user
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="avatar != null and avatar != ''">
+                avatar = #{avatar},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 修改密码 -->
+    <update id="modifyPassword">
+        update user
+        set
+            password = #{password}
+        where
+            id = #{id}
+    </update>
+
+    <!-- 用户登录 -->
+    <select id="login" resultType="com.wtu.entity.User">
+        select *
+        from user
+        where
+            username = #{username}
+        and
+            password = #{password}
+    </select>
+
+    <!-- 根据用户名查询用户 -->
+    <select id="selectByUsername" resultType="com.wtu.entity.User">
+        select *
+        from user
+        where
+            username = #{username}
+    </select>
+
+    <!-- 根据id查询用户名 -->
+    <select id="getUsernameById" resultType="java.lang.String">
+        select username
+        from user
+        where
+            id = #{id}
+    </select>
+
+    <!-- 根据用户名查询id -->
+    <select id="findNameById" resultType="java.lang.String">
+        select username
+        from user
+        where
+            id = #{id}
+    </select>
+
+    <!-- 根据用户名查询用户 -->
+    <select id="list" resultType="com.wtu.entity.User">
+        select *
+        from user
+        where
+            username = #{username}
+    </select>
+</mapper>

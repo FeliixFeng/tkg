@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wtu.mapper.EntityMapper">
+
+    <!-- 添加实体 -->
+    <insert id="addEntity">
+        insert into entity(name, parent_id, description, image_url, user_id, overview, feature, status)
+        values(#{name}, #{parentId}, #{description}, #{imageUrl}, #{userId}, #{overview}, #{feature}, #{status})
+    </insert>
+
+    <!-- 更新实体 -->
+    <update id="updateEntity">
+        update entity
+        set name = #{name},
+            parent_id = #{parentId},
+            description = #{description},
+            image_url = #{imageUrl},
+            user_id = #{userId},
+            overview = #{overview},
+            feature = #{feature},
+            status = #{status}
+        where id = #{id}
+    </update>
+
+    <!-- 审核未通过 -->
+    <update id="checkEntityNo">
+        update entity
+        set status = -1
+        , reject_reason = #{rejectReason}
+        where id = #{id}
+    </update>
+
+    <!-- 审核通过  -->
+    <update id="checkEntityOk">
+        update entity
+        set
+            status = 1
+        where
+            id = #{id}
+    </update>
+
+    <!-- 删除实体 -->
+    <delete id="deleteByName">
+        DELETE
+        FROM entity
+        where
+            name = #{name}
+    </delete>
+
+    <!-- 查询总记录数 -->
+    <select id="count" resultType="int">
+        SELECT COUNT(*)
+        FROM entity
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+    </select>
+
+
+    <!-- 分页查询 -->
+    <select id="pageQuery" resultType="com.wtu.entity.Entity">
+        SELECT *
+        FROM entity
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 查询所有根结点 -->
+    <select id="getRootNode" resultType="com.wtu.entity.Node">
+        select *
+        from entity
+        where
+            parent_id is null
+            and
+            status = 1
+    </select>
+
+    <!-- 查询所有子结点 -->
+    <select id="getNode" resultType="com.wtu.entity.Node">
+        select *
+        from entity
+        where
+            parent_id = #{id}
+            and
+            status = 1
+    </select>
+
+    <!-- 根据id查询 -->
+    <select id="findById" resultType="com.wtu.entity.Entity">
+        select *
+        from entity
+        where
+            id = #{id}
+    </select>
+
+    <!-- 根据用户id查询 -->
+    <select id="findByUserId" resultType="com.wtu.entity.Entity">
+        select *
+        from entity
+        where
+            user_id = #{id}
+    </select>
+
+    <!-- 根据名称查询id -->
+    <select id="findIdByName" resultType="java.lang.Long">
+        select id
+        from entity
+        where
+            name = #{name}
+    </select>
+
+    <!-- 根据名称查询 -->
+    <select id="findByName" resultType="com.wtu.entity.Entity">
+        select *
+        from entity
+        where
+            name = #{name}
+    </select>
+</mapper>

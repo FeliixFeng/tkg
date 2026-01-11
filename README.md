@@ -1,37 +1,47 @@
 # tkg-backend
 
-#### 介绍
-面向纺织产业的多模态知识图谱平台后端
+## 项目介绍
+面向纺织产业的多模态知识图谱平台后端，提供用户管理、知识导入、搜索、展示及专家评审等功能。
 
-#### 软件架构
-软件架构说明
+## 软件架构
+- **后端技术栈**：
+  - Java 11
+  - Spring Boot
+  - MyBatis
+  - Maven
+- **日志管理**：
+  - SLF4J + Logback
 
+## 安装教程
 
-#### 安装教程
+1. 克隆项目：
+   ```bash
+   git clone https://github.com/FeliixFeng/tkg.git
+   ```
+2. 进入项目目录：
+   ```bash
+   cd tkg-backend
+   ```
+3. 启动后端服务：
+   ```bash
+   mvn spring-boot:run
+   ```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 使用说明
 
-#### 使用说明
+1. 配置数据库连接：
+   - 修改 `application.yml` 文件中的数据库配置。
+2. 启动服务后，访问 API 文档：
+   - 默认地址为 `http://localhost:8080/swagger-ui.html`。
+3. 测试功能：
+   - 使用 Postman 或其他工具测试用户管理、知识图谱相关接口。
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 参与贡献
 
-#### 参与贡献
+1. Fork 本仓库
+2. 新建 Feat_xxx 分支
+3. 提交代码
+4. 新建 Pull Request
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+## 许可证
+本项目采用 [MIT 许可证](LICENSE)。

@@ -1,0 +1,51 @@
+# application.yml
+spring:
+  profiles:
+    # 默认激活本地配置，运行时会合并 application-local.yml 的内容
+    active: local
+  application:
+    name: tkg-backend
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 使用占位符，即使泄露也不会暴露真实地址和账号
+    url: ${DB_URL:jdbc:mysql://localhost:3306/tkg}
+    username: ${DB_USER:root}
+    password: ${DB_PWD:password}
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.wtu.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+knife4j:
+  enable: true
+  production: false
+
+logging:
+  level:
+    com:
+      wtu:
+        mapper: debug
+        service: info
+        controller: info
+
+wtu:
+  alioss:
+    endpoint: oss-cn-beijing.aliyuncs.com
+    # 使用占位符代替真实密钥
+    access-key-id: ${OSS_AK:your_access_key_id}
+    access-key-secret: ${OSS_SK:your_access_key_secret}
+    bucket-name: tkg
