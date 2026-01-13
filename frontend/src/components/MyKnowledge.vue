@@ -54,6 +54,8 @@
 </template>
 
 <script>
+import axios from '../http';
+
 export default {
   data() {
     return {
@@ -73,10 +75,10 @@ export default {
     async fetchResults() {
       try {
         const userId = sessionStorage.getItem('userId');
-        const response = await fetch(`http://8.155.5.178:8080/api/entity/get_info/${userId}`);
-        const data = await response.json();
+        const response = await axios.get(`/api/entity/get_info/${userId}`);
+        const data = response.data;
 
-        if (response.ok && data.code === 1) {
+        if (response.status === 200 && data.code === 1) {
           this.allItems = data.data;
           this.filterItems(); // 初始化时过滤数据
         } else {

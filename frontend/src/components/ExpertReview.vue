@@ -129,6 +129,8 @@
 </template>
 
 <script>
+import axios from '../http';
+
 export default {
   data() {
     return {
@@ -166,23 +168,13 @@ export default {
           status: 0,
           name: name
         });
-        const response = await fetch(`http://8.155.5.178:8080/api/entity/pages?${queryParams}`);
-        const data = await response.json();
-
-        if (response.ok && data.code === 1) {
-          const items = data.data.record;
-          for (const item of items) {
-            item.username = await this.fetchUserName(item.userId);
-          }
-          this.uncheckedItems = items;
-          this.uncheckedTotalPages = Math.ceil(data.data.total / pageSize);
-        } else {
-          this.uncheckedItems = [];
-          this.uncheckedTotalPages = 1;
+        const response = await axios.get(`/api/entity/pages?${queryParams}`);
+        const data = response.data;
+        if (data.code === 1) {
+          this.uncheckedItems = data.data.record;
         }
       } catch (error) {
-        this.uncheckedItems = [];
-        this.uncheckedTotalPages = 1;
+        console.error('Error fetching paginated results:', error);
       }
     },
     async fetchPaginatedResults(page, pageSize, name = '') {
@@ -193,10 +185,10 @@ export default {
           status: 1,
           name: name
         });
-        const response = await fetch(`http://8.155.5.178:8080/api/entity/pages?${queryParams}`);
-        const data = await response.json();
+        const response = await axios.get(`/api/entity/pages?${queryParams}`);
+        const data = response.data;
 
-        if (response.ok && data.code === 1) {
+        if (data.code === 1) {
           const items = data.data.record;
           for (const item of items) {
             item.username = await this.fetchUserName(item.userId);
@@ -214,7 +206,7 @@ export default {
     },
     async fetchUserName(userId) {
       try {
-        const response = await fetch(`http://8.155.5.178:8080/api/user/get_name/${userId}`);
+        const response = await axios.get(`/api/user/get_name/${userId}`);
         const data = await response.json();
 
         if (response.ok && data.code === 1) {
@@ -233,7 +225,7 @@ export default {
     },
     async fetchEntityData(id) {
       try {
-        const response = await fetch(`http://8.155.5.178:8080/api/entity/${id}`);
+        const response = await axios.get(`/api/entity/${id}`);
         const data = await response.json();
 
         if (response.ok && data.code === 1) {
@@ -241,7 +233,7 @@ export default {
           let parentNodeName = "这是一个根节点";
           
           if (data.data.parentId) {
-            const parentResponse = await fetch(`http://8.155.5.178:8080/api/entity/${data.data.parentId}`);
+            const parentResponse = await axios.get(`/api/entity/${data.data.parentId}`);
             const parentData = await parentResponse.json();
             
             if (parentResponse.ok && parentData.code === 1) {
@@ -295,29 +287,12 @@ export default {
     },
     async approveItem() {
       try {
-        console.log('Approving item with details:', this.selectedItem);
-        console.log('Approving item with ID:', this.selectedItem.id);
-
-        const response = await fetch(`http://8.155.5.178:8080/api/entity/check_ok/${this.selectedItem.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.code === 1) {
-          console.log('Item approved successfully:', this.selectedItem);
+        const response = await axios.put(`/api/entity/check_ok/${this.selectedItem.id}`);
+        if (response.data.code === 1) {
           alert('审批成功');
-          this.fetchUncheckedPaginatedResults(this.uncheckedCurrentPage, this.pageSize);
-        } else {
-          console.error('Failed to approve item:', data);
-          alert('审批失败');
         }
       } catch (error) {
         console.error('Error approving item:', error);
-        alert('审批失败');
       } finally {
         this.closeModal();
       }
@@ -404,10 +379,7 @@ export default {
         formData.append('file', file);
 
         try {
-          const response = await fetch('http://8.155.5.178:8080/api/upload', {
-            method: 'POST',
-            body: formData
-          });
+          const response = await axios.post('/api/upload', formData);
 
           const data = await response.json();
 
@@ -452,13 +424,7 @@ export default {
 
         console.log('Submitting updated item:', updatedItem); // 调试信息
 
-        const response = await fetch('http://8.155.5.178:8080/api/entity', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(updatedItem)
-        });
+        const response = await axios.post('/api/entity', updatedItem);
 
         const data = await response.json();
 

@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from '../http';
 
 export default {
   data() {
@@ -98,7 +98,7 @@ export default {
       try {
         const username = sessionStorage.getItem('username'); 
         console.log('Username:', username); // 输出用户名
-        const response = await axios.get(`http://8.155.5.178:8080/api/user/get_user/${username}`);
+        const response = await axios.get(`/api/user/get_user/${username}`);
         console.log('Fetched User Data:', response.data); // 输出获取到的用户数据
         this.user = response.data.data; 
       } catch (error) {
@@ -117,7 +117,7 @@ export default {
           return;
         }
         try {
-          await axios.put('http://8.155.5.178:8080/api/user/modify_password', {
+          await axios.put('/api/user/modify_password', {
             id: this.user.id,
             password: this.user.newPassword
           });
@@ -129,7 +129,7 @@ export default {
       } else {
         if (this.user.username !== this.originalUser.username) {
           try {
-            const response = await axios.get(`http://8.155.5.178:8080/api/user/get_user/${this.user.username}`);
+            const response = await axios.get(`/api/user/get_user/${this.user.username}`);
             if (response.data && response.data.data) {
               alert('用户名已存在');
               return;
@@ -146,7 +146,7 @@ export default {
           }
         }
         try {
-          await axios.put('http://8.155.5.178:8080/api/user/update', {
+          await axios.put('/api/user/update', {
             id: this.user.id,
             username: this.user.username,
             phone: this.user.phone

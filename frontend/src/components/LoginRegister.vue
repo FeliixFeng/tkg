@@ -66,12 +66,21 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { ElForm, ElFormItem, ElInput, ElButton, ElLink, ElCheckbox } from 'element-plus';
+import axios from '../http';
 
 export default {
+  components: {
+    ElForm,
+    ElFormItem,
+    ElInput,
+    ElButton,
+    ElLink,
+    ElCheckbox,
+  },
   data() {
     return {
-      isLogin: true,  // 控制是否显示登录界面
+      isLogin: true,
       loginForm: {
         username: '',
         password: '',
@@ -82,29 +91,27 @@ export default {
         password: '',
         confirmPassword: '',
         isExpert: false,
-      }
+      },
     };
   },
   computed: {
     currentForm() {
       return this.isLogin ? this.loginForm : this.registerForm;
-    }
+    },
   },
   methods: {
     onLogin() {
-      axios.post('http://8.155.5.178:8080/api/user/login', {
+      axios.post('/api/user/login', {
         username: this.currentForm.username,
         password: this.currentForm.password,
       })
       .then(response => {
-        console.log('API Response:', response.data);
-        if (response.data.code == 1) {
+        if (response.data.code === 1) {
           sessionStorage.setItem('username', response.data.data.username);
           sessionStorage.setItem('userType', response.data.data.userType);
-          sessionStorage.setItem('userId',response.data.data.id);
-          sessionStorage.setItem('password',response.data.data.password);
+          sessionStorage.setItem('userId', response.data.data.id);
+          sessionStorage.setItem('password', response.data.data.password);
 
-          // 调用 Vuex action 更新状态
           this.$store.dispatch('fetchUser', {
             username: response.data.data.username,
             userType: response.data.data.userType,
@@ -123,26 +130,21 @@ export default {
       });
     },
     onRegister() {
-      // 检查密码是否一致
       if (this.registerForm.password !== this.registerForm.confirmPassword) {
         alert('两次输入的密码不一致');
         return;
       }
 
-       // 检查用户名是否已存在
-      axios.get(`http://8.155.5.178:8080/api/user/get_user/${this.registerForm.username}`)
+      axios.get(`/api/user/get_user/${this.registerForm.username}`)
       .then(response => {
         if (response.data && response.data.data) {
-          // 用户名已存在
           alert('用户名已存在，请重试');
         } else {
-          // 用户名不存在，继续注册
           this.proceedWithRegistration();
         }
       })
       .catch(error => {
         if (error.response && error.response.status === 404) {
-          // 用户名不存在，继续注册
           this.proceedWithRegistration();
         } else {
           console.error('用户名检查失败', error);
@@ -151,7 +153,7 @@ export default {
       });
     },
     proceedWithRegistration() {
-      axios.post('http://8.155.5.178:8080/api/user/register', {
+      axios.post('/api/user/register', {
         username: this.registerForm.username,
         phone: this.registerForm.phone,
         password: this.registerForm.password,
@@ -159,8 +161,7 @@ export default {
         userType: this.registerForm.isExpert ? 1 : 0,
       })
       .then(response => {
-        if (response.data.code == 1) {
-          // 注册成功后的处理
+        if (response.data.code === 1) {
           sessionStorage.setItem('username', response.data.data.username);
           sessionStorage.setItem('userType', response.data.data.userType);
 
@@ -168,10 +169,8 @@ export default {
             username: response.data.data.username,
             userType: response.data.data.userType,
           });
-          console.log('注册成功', response.data);
           this.$emit('registerSuccess');
         } else {
-          // 注册失败后的处理
           alert('注册失败: ' + response.data.msg);
         }
       })
@@ -181,7 +180,7 @@ export default {
       });
     },
     toggleForm() {
-      this.isLogin = !this.isLogin;  // 切换登录和注册界面
+      this.isLogin = !this.isLogin;
     },
   },
 };
@@ -193,19 +192,18 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url('/public/KnowledgeGraph.jpg'); /* 更新背景图片路径 */
-  background-size: cover; /* 使背景图片覆盖整个容器 */
-  background-position: center; /* 将背景图片居中 */
+  background-image: url('../assets/KnowledgeGraph.jpg'); /* 更新背景图片路径 */
+  background-size: cover;
+  background-position: center;
 }
 
 .form-box {
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.9);
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   width: 400px;
   text-align: center;
-  margin-left: 50%;
 }
 
 .form {
@@ -217,10 +215,6 @@ export default {
   justify-content: center;
 }
 
-.el-button {
-  margin: 0 auto;
-  display: block;
-}
 
 .toggle-link {
   margin-top: 10px;

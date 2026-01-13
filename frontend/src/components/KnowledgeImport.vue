@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from '../http';
 
 export default {
   computed: {
@@ -70,7 +70,7 @@ export default {
   methods: {
     async fetchTreeData() {
       try {
-        const response = await axios.get('http://8.155.5.178:8080/api/entity/tree');
+        const response = await axios.get('/api/entity/tree');
         this.treeData = response.data.data;
         this.flatOptions = this.flattenTree(this.treeData);
       } catch (error) {
@@ -104,7 +104,7 @@ export default {
     },
     async getEntityInfoByName(name) {
       try {
-        const response = await axios.get(`http://8.155.5.178:8080/api/entity/all/${encodeURIComponent(name)}`, {
+        const response = await axios.get(`/api/entity/all/${encodeURIComponent(name)}`, {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
@@ -135,7 +135,7 @@ export default {
           const formData = new FormData();
           formData.append('file', this.file);
 
-          const uploadResponse = await axios.post('http://8.155.5.178:8080/api/upload', formData, {
+          const uploadResponse = await axios.post('/api/upload', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -159,7 +159,7 @@ export default {
           userId: userId,
         };
 
-        const response = await axios.post('http://8.155.5.178:8080/api/entity/add', entityData);
+        const response = await axios.post('/api/entity/add', entityData);
 
         if (response.data.code === 1) {
           alert('知识提交成功，等待专家评审');
@@ -204,8 +204,8 @@ export default {
     },
       async getIdByName(name) {
         try {
-          const response = await axios.get(`http://8.155.5.178:8080/api/entity/get_id/${encodeURIComponent(name)}`);
-          return response.data.data; 
+          const response = await axios.get(`/api/entity/get_id/${encodeURIComponent(name)}`);
+          return response.data.data;
         } catch (error) {
           console.error('Error getting entity ID by name:', error);
           return null;

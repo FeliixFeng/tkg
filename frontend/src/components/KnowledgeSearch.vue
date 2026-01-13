@@ -31,6 +31,9 @@
 </template>
 
 <script>
+
+import axios from '../http';
+
 export default {
   props: {
     onShowInfo: Function,
@@ -70,44 +73,15 @@ export default {
     async fetchPaginatedResults(page, pageSize, name = '') {
       try {
         const queryParams = new URLSearchParams({
-          page: page, 
+          page: page,
           pageSize: pageSize,
-          status: 1, 
-          name: name,
+          status: 1,
+          name: name
         });
-
-        const response = await fetch(`http://8.155.5.178:8080/api/entity/pages?${queryParams}`, {
-          method: 'GET',
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.code === 1) {
-          if (page === 1) {
-            // 第一次请求时，重置 searchResults
-            this.searchResults = data.data.record.map(result => ({
-              id: result.id,
-              name: result.name,
-              shortDescription: result.overview,
-              imageUrl: result.imageUrl || 'default-image-url.jpg'
-            }));
-            this.totalPages = Math.ceil(data.data.total / pageSize); // 计算总页数
-          } else {
-            // 后续请求时，追加数据到 searchResults
-            this.searchResults = [
-              ...this.searchResults,
-              ...data.data.record.map(result => ({
-                id: result.id,
-                name: result.name,
-                shortDescription: result.overview,
-                imageUrl: result.imageUrl || 'default-image-url.jpg' 
-              }))
-            ];
-          }
-        } else {
-          this.searchResults = [];
-          this.totalPages = 1;
-          console.error('数据获取失败，错误码：', data.code);
+        const response = await axios.get(`/api/entity/pages?${queryParams}`);
+        const data = response.data;
+        if (data.code === 1) {
+          this.searchResults = data.data.record;
         }
       } catch (error) {
         console.error('请求分页数据时发生错误:', error);

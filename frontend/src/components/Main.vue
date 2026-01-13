@@ -110,6 +110,7 @@ import ExpertReview from './ExpertReview.vue';
 import KnowledgeSearch from './KnowledgeSearch.vue';
 import KnowledgeImport from './KnowledgeImport.vue';
 import MyKnowledge from './MyKnowledge.vue';
+import axios from '../http';
 
 export default {
   components: {
@@ -207,10 +208,10 @@ export default {
       this.infoTitle = node.name;
 
       try {
-        const response = await fetch(`http://8.155.5.178:8080/api/entity/${node.id}`);
-        const data = await response.json();
+        const response = await axios.get(`/api/entity/${node.id}`);
+        const data = response.data;
 
-        if (response.ok && data.code === 1) {
+        if (response.status === 200 && data.code === 1) {
           this.entityDetails = data.data;
           this.infoImageUrl = this.entityDetails.imageUrl || this.defaultInfoImageUrl;
           this.infoContent = this.entityDetails.description;
@@ -253,10 +254,10 @@ export default {
     },
     async fetchKnowledgeGraphData() {
       try {
-        const response = await fetch('http://8.155.5.178:8080/api/entity/tree');
-        const data = await response.json();
-      
-        if (response.ok) { // 检查 HTTP 请求是否成功
+        const response = await axios.get('/api/entity/tree');
+        const data = response.data;
+
+        if (response.status === 200) { // 检查 HTTP 请求是否成功
           if (data.code === 1) {
             this.knowledgeGraphData = data.data;
           } else if (data.code === 0) {
