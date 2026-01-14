@@ -35,7 +35,7 @@
    - 默认地址为 `http://localhost:8080/swagger-ui.html`。
 3. 测试功能：
    - 使用 Postman 或其他工具测试用户管理、知识图谱相关接口。
-
+4. github action 自动化全流程
 ## 参与贡献
 
 1. Fork 本仓库
