@@ -1,0 +1,74 @@
+name: TKG Backend Deploy
+
+on:
+  push:
+    branches:
+      - main  # 当你 push 到 main 分支时触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 拉取最新的代码
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. 安装 JDK 17 (和你服务器版本一致)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # 3. Maven 打包
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # 4. 把打好的 Jar 包传送到服务器
+      - name: Upload Jar to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: 8.148.25.67
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "target/*.jar" # 匹配你打包出来的文件
+          target: "/opt/tkg/backend/temp"
+          strip_components: 1
+
+      # 5. SSH 远程执行：停止旧程序，启动新程序
+      - name: Deploy and Start
+        uses: appleboy/ssh-action@master
+        with:
+          host: 8.148.25.67
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 进入后端目录
+            cd /opt/tkg/backend
+            
+            # 确保 temp 存在（防止移动失败）
+            mkdir -p temp
+            
+            # 把传过来的新包重命名
+            # 用 -f 强制覆盖，避免询问
+            mv -f temp/*.jar tkg-api.jar
+            
+            # 查找并杀掉 8080 端口进程
+            # 这里的 || true 非常重要，防止第一次部署没进程时报错
+            PID=$(lsof -t -i:8080) || true
+            if [ ! -z "$PID" ]; then
+              echo "Stopping existing process: $PID"
+              kill -9 $PID
+            fi
+            
+            # 启动！
+            # 增加一个延时检查或确认输出
+            nohup java -Xmx512m -Xms256m -jar tkg-api.jar \
+              --spring.config.location=/opt/tkg/backend/application-prod.yml \
+              > /opt/tkg/logs/app.log 2>&1 &
+            
+            echo "Deployment finished. Checking process..."
+            sleep 2
+            ps -ef | grep tkg-api.jar | grep -v grep
