@@ -3,7 +3,7 @@ name: TKG Backend Deploy
 on:
   push:
     branches:
-      - master  # 当你 push 到 master 分支时触发
+      - master  # 确保这里和你本地 git branch 查出来的名字一致
 
 jobs:
   build-and-deploy:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # 2. 安装 JDK 17 (和你服务器版本一致)
+      # 2. 安装 JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -33,7 +33,7 @@ jobs:
           host: 8.148.25.67
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "target/*.jar" # 匹配你打包出来的文件
+          source: "target/*.jar"
           target: "/opt/tkg/backend/temp"
           strip_components: 1
 
@@ -45,30 +45,33 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # 进入后端目录
+            # 1. 环境准备
+            mkdir -p /opt/tkg/backend/temp
+            mkdir -p /opt/tkg/logs
             cd /opt/tkg/backend
             
-            # 确保 temp 存在（防止移动失败）
-            mkdir -p temp
+            # 2. 如果 temp 文件夹里有新包，则覆盖旧包
+            if ls temp/*.jar 1> /dev/null 2>&1; then
+                echo "New JAR detected. Moving to target..."
+                mv -f temp/*.jar tkg-api.jar
+            fi
             
-            # 把传过来的新包重命名
-            # 用 -f 强制覆盖，避免询问
-            mv -f temp/*.jar tkg-api.jar
-            
-            # 查找并杀掉 8080 端口进程
-            # 这里的 || true 非常重要，防止第一次部署没进程时报错
+            # 3. 杀掉 8080 端口的旧进程
             PID=$(lsof -t -i:8080) || true
             if [ ! -z "$PID" ]; then
               echo "Stopping existing process: $PID"
               kill -9 $PID
+              sleep 2
             fi
             
-            # 启动！
-            # 增加一个延时检查或确认输出
+            # 4. 启动新程序
+            # 显式挂载外部 application-prod.yml 配置文件
+            echo "Starting application..."
             nohup java -Xmx512m -Xms256m -jar tkg-api.jar \
               --spring.config.location=/opt/tkg/backend/application-prod.yml \
               > /opt/tkg/logs/app.log 2>&1 &
             
-            echo "Deployment finished. Checking process..."
-            sleep 2
-            ps -ef | grep tkg-api.jar | grep -v grep
+            # 5. 打印状态检查
+            echo "Deployment sequence finished."
+            sleep 3
+            ps -ef | grep tkg-api.jar | grep -v grep || true
