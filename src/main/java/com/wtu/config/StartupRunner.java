@@ -8,6 +8,6 @@ public class StartupRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Backend debugging address: http://localhost:8080/doc.html");
+        System.out.println("Backend Interface docs: http://localhost:8080/doc.html");
     }
 }
