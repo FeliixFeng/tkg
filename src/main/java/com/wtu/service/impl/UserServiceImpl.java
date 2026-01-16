@@ -6,6 +6,7 @@ import com.wtu.entity.User;
 import com.wtu.mapper.UserMapper;
 import com.wtu.service.IUserService;
 
+import com.wtu.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     // 用户登录
     @Override
     public User login(UserDTO userDTO) {
@@ -35,6 +39,13 @@ public class UserServiceImpl implements IUserService {
         if (user == null) {
             return null;
         }
+
+        // 用户存在, 生成JWT Token
+        String token = jwtUtils.generateToken(username);
+
+        // 设置 Token 和用户信息到UserDTO
+        user.setToken(token);
+
         return user;
     }
 

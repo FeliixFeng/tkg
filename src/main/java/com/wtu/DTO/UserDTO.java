@@ -2,15 +2,13 @@ package com.wtu.DTO;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Setter
 @Schema(description = "用户传输对象")
 public class UserDTO {
 
@@ -25,4 +23,8 @@ public class UserDTO {
 
     @Schema(description = "手机号")
     private String phone;
+
+    @Schema(description = "用户的 JWT Token")
+    private String token;
+
 }

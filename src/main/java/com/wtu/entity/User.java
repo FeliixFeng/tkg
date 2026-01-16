@@ -31,4 +31,7 @@ public class User{
 
     // 头像
     private String avatar;
+
+    // 用户的 JWT Token
+    private String token;
 }
