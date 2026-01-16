@@ -9,6 +9,7 @@
   - Spring Boot
   - MyBatis
   - Maven
+  - Jwt
 - **日志管理**：
   - SLF4J + Logback
 
