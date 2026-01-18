@@ -9,8 +9,8 @@ import com.wtu.result.Result;
 import com.wtu.service.IEntityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -26,10 +26,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/entity")
 @Tag(name ="实体管理")
+@RequiredArgsConstructor
 public class EntityController {
 
-    @Autowired
-    private IEntityService entityService;
+    private final IEntityService entityService;
 
     // 返回树形结构
     @GetMapping("/tree")
@@ -50,13 +50,9 @@ public class EntityController {
     // 实体名查询实体ID
     @GetMapping("/get_id/{name}")
     @Operation(summary = "实体名查询实体ID", description = "通过实体名查询实体ID")
-    public Result getEntityIdByName(@PathVariable String name){
+    public Result<Long> getEntityIdByName(@PathVariable String name){
         Long id = entityService.findIdByName(name);
-        if(id == null){
-            return Result.error("实体不存在");
-        }else{
-            return Result.success(id);
-        }
+        return Result.success(id);
     }
 
     // 实体名删除实体
@@ -70,7 +66,7 @@ public class EntityController {
     // 分页查询所有信息
     @GetMapping("/pages")
     @Operation(summary = "分页查询所有信息", description = "返回所有信息")
-    public Result pageQuery(PageQueryDTO pageQueryDTO){
+    public Result<PageResult> pageQuery(PageQueryDTO pageQueryDTO){
         PageResult pageResult = entityService.pageQuery(pageQueryDTO);
         return Result.success(pageResult);
     }
@@ -78,7 +74,7 @@ public class EntityController {
     // 用户ID查询实体所有信息
     @GetMapping("/get_info/{userId}")
     @Operation(summary = "用户ID查询实体所有信息", description = "通过用户ID查询实体信息")
-    public Result getEntityByUserId(@PathVariable Long userId){
+    public Result<List<Entity>> getEntityByUserId(@PathVariable Long userId){
         List<Entity> entityList = entityService.findByUserId(userId);
         return Result.success(entityList);
     }
@@ -86,7 +82,7 @@ public class EntityController {
     // 实体名查询实体所有信息
     @GetMapping("/all/{name}")
     @Operation(summary = "实体名查询实体所有信息", description = "通过实体名查询实体信息")
-    public Result getEntityByName(@PathVariable String name){
+    public Result<Entity> getEntityByName(@PathVariable String name){
         Entity entity = entityService.findByName(name);
         return Result.success(entity);
     }

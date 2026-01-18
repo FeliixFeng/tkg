@@ -97,6 +97,14 @@
             status = 1
     </select>
 
+    <!-- 查询所有已审核通过的节点 -->
+    <select id="getAllApprovedNodes" resultType="com.wtu.entity.Node">
+        select *
+        from entity
+        where status = 1
+        order by parent_id, id
+    </select>
+
     <!-- 根据id查询 -->
     <select id="findById" resultType="com.wtu.entity.Entity">
         select *

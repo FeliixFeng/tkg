@@ -4,16 +4,17 @@ import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
+import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
 import java.io.ByteArrayInputStream;
 
 /**
- * 阿里云OSS工具类
+ * 阿里云OSS工具类 - 优化版（单例模式）
  */
 @Data
-@AllArgsConstructor
 @Slf4j
 public class AliOssUtil {
 
@@ -29,6 +30,32 @@ public class AliOssUtil {
     // 阿里云OSS存储bucket名称
     private String bucketName;
 
+    // OSS 客户端实例（单例）
+    private OSS ossClient;
+
+    // 构造函数（不包含 ossClient）
+    public AliOssUtil(String endpoint, String accessKeyId, String accessKeySecret, String bucketName) {
+        this.endpoint = endpoint;
+        this.accessKeyId = accessKeyId;
+        this.accessKeySecret = accessKeySecret;
+        this.bucketName = bucketName;
+    }
+
+    /**
+     * 获取 OSS 客户端实例（懒加载）
+     */
+    private OSS getOssClient() {
+        if (ossClient == null) {
+            synchronized (this) {
+                if (ossClient == null) {
+                    ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+                    log.info("OSS 客户端初始化成功");
+                }
+            }
+        }
+        return ossClient;
+    }
+
     /**
      * 文件上传
      *
@@ -37,51 +64,33 @@ public class AliOssUtil {
      * @return
      */
     public String upload(byte[] bytes, String objectName) {
-
-        // 创建OSSClient实例。
-        OSS ossClient = new OSSClientBuilder()
-                .build(endpoint, accessKeyId, accessKeySecret);
-
         try {
-            // 创建PutObject请求。
-            ossClient.putObject(bucketName,
-                                objectName,
-                                new ByteArrayInputStream(bytes));
+            // 使用单例的 OSS 客户端
+            getOssClient().putObject(bucketName, objectName, new ByteArrayInputStream(bytes));
         } catch (OSSException oe) {
-            System.out.println("Caught an OSSException, " +
-                    "which means your request made it to OSS, " +
-                    "but was rejected with an error response " +
-                    "for some reason.");
-            System.out.println("Error Message:" + oe.getErrorMessage());
-            System.out.println("Error Code:" + oe.getErrorCode());
-            System.out.println("Request ID:" + oe.getRequestId());
-            System.out.println("Host ID:" + oe.getHostId());
+            log.error("OSS 异常 - Error Message: {}, Error Code: {}, Request ID: {}, Host ID: {}",
+                    oe.getErrorMessage(), oe.getErrorCode(), oe.getRequestId(), oe.getHostId());
+            throw new RuntimeException("文件上传失败: " + oe.getErrorMessage());
         } catch (ClientException ce) {
-            System.out.println("Caught an ClientException, which means " +
-                    "the client encountered a serious internal problem " +
-                    "while trying to communicate with OSS, " +
-                    "such as not being able to access the network.");
-            System.out.println("Error Message:" + ce.getMessage());
-        } finally {
-            // 关闭OSSClient。
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            log.error("OSS 客户端异常 - Error Message: {}", ce.getMessage());
+            throw new RuntimeException("文件上传失败: " + ce.getMessage());
         }
 
         // 文件访问路径规则 https://BucketName.Endpoint/ObjectName
-        StringBuilder stringBuilder = new StringBuilder("https://");
+        String filePath = "https://" + bucketName + "." + endpoint + "/" + objectName;
+        log.info("文件上传到: {}", filePath);
 
-        // 拼接BucketName
-        stringBuilder
-                .append(bucketName)
-                .append(".")
-                .append(endpoint)
-                .append("/")
-                .append(objectName);
+        return filePath;
+    }
 
-        log.info("文件上传到:{}", stringBuilder.toString());
-
-        return stringBuilder.toString();
+    /**
+     * Bean 销毁时关闭 OSS 客户端
+     */
+    @PreDestroy
+    public void shutdown() {
+        if (ossClient != null) {
+            ossClient.shutdown();
+            log.info("OSS 客户端已关闭");
+        }
     }
 }

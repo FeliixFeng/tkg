@@ -22,7 +22,11 @@ public class Node {
     // 节点名
     private String name;
 
+    // 父节点ID
+    private Integer parentId;
+
     // 子节点列表
+    @Builder.Default
     private List<Node> children = new ArrayList<Node>();
 
 }

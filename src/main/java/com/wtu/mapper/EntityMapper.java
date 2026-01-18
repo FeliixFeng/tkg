@@ -25,6 +25,9 @@ public interface EntityMapper {
     // 获取子节点
     List<Node> getNode(Long id);
 
+    // 查询所有已审核通过的节点（用于优化树形结构构建）
+    List<Node> getAllApprovedNodes();
+
     // ID查询实体所有信息
     Entity findById(Long id);
 
