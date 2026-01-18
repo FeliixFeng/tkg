@@ -110,13 +110,13 @@ export default {
           sessionStorage.setItem('username', response.data.data.username);
           sessionStorage.setItem('userType', response.data.data.userType);
           sessionStorage.setItem('userId', response.data.data.id);
-          sessionStorage.setItem('password', response.data.data.password);
+          sessionStorage.setItem('token', response.data.data.token);
 
           this.$store.dispatch('fetchUser', {
             username: response.data.data.username,
             userType: response.data.data.userType,
             userId: response.data.data.id,
-            password: response.data.data.password,
+            token: response.data.data.token,
           });
 
           this.$emit('loginSuccess');
