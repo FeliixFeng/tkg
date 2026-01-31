@@ -1,9 +1,14 @@
 name: TKG Backend Deploy
 
+# 暂时禁用自动部署
+# on:
+#   push:
+#     branches:
+#       - master
+
+# 手动触发工作流（如需临时启用）
 on:
-  push:
-    branches:
-      - master  # 确保这里和你本地 git branch 查出来的名字一致
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
