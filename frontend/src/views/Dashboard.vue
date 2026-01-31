@@ -2,7 +2,7 @@
   <div id="dashboard">
     <header>
       <div class="header-top">
-        <h1>纺织知识图谱</h1>
+        <h1 class="brand-title-clickable" @click="goHome">纺织知识图谱</h1>
       </div>
       <div class="header-bottom">
         <div class="user-info">
@@ -141,7 +141,7 @@ export default {
        defaultUserAvatar: require('@/assets/defaultavatar.jpg'),
       isInitialView: true,
       activeSection: '',
-      knowledgeGraphData: {},
+       knowledgeGraphData: [],
       entityDetails: null,
     };
   },
@@ -162,9 +162,8 @@ export default {
     const savedSection = sessionStorage.getItem('activeSection');
     if (savedSection) {
       this.navigateTo(savedSection);
-    } else {
-      this.fetchKnowledgeGraphData();
     }
+    // 如果没有保存的状态，默认显示欢迎主页（不调用任何navigateTo）
   },
   methods: {
     ...mapActions('auth', ['logout']),
@@ -199,6 +198,7 @@ export default {
           this.currentSectionTitle = '知识图谱';
           this.currentSection = 'knowledgeGraph';
           this.activeSection = 'knowledgeGraph';
+          this.fetchKnowledgeGraphData();
           break;
         case 'knowledgeImport':
           this.currentSectionTitle = '知识导入';
@@ -229,10 +229,13 @@ export default {
       this.currentSectionContent = '这是一个专为纺织行业设计的知识管理平台，为您提供丰富的知识资源和便捷的操作体验。';
       this.currentSection = '';
       this.activeSection = '';
+      this.infoPanelVisible = false;
       // 清除保存的 section 状态
       sessionStorage.removeItem('activeSection');
-      this.currentSection = '';
-      this.activeSection = '';
+    },
+
+    goHome() {
+      this.returnToInitialView();
     },
 
     async showInfo(node) {
@@ -306,6 +309,17 @@ header {
 .header-top h1 {
   padding: 8px;
   margin: 0;
+}
+
+.brand-title-clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.brand-title-clickable:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.02);
 }
 
 .header-bottom {

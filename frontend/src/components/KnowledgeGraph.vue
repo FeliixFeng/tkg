@@ -41,6 +41,10 @@ export default {
         return;
       }
 
+      // 清空之前的数据
+      this.allNodes = [];
+      this.allLinks = [];
+
       const svg = d3.select(this.$refs.svg);
       const width = +svg.attr('width');
       const height = +svg.attr('height');
@@ -87,7 +91,13 @@ export default {
         return;
       }
 
+      // 清空之前的数据和SVG内容
+      this.allNodes = [];
+      this.allLinks = [];
+
       const svg = d3.select(this.$refs.svg);
+      svg.selectAll('*').remove(); // 清空SVG中的所有元素
+      
       const width = +svg.attr('width');
       const height = +svg.attr('height');
 
