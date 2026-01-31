@@ -26,8 +26,18 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             response.setStatus(HttpServletResponse.SC_OK);
             return true;
         }
-        
-        log.debug("Request URI: {}", request.getRequestURI());
+
+        String requestURI = request.getRequestURI();
+        log.debug("Request URI: {}", requestURI);
+
+        // 白名单：不需要认证的接口
+        if (requestURI.contains("/api/user/login") ||
+            requestURI.contains("/api/user/register") ||
+            requestURI.contains("/api/user/get_user/")) {
+            log.debug("Public API accessed, skipping authentication: {}", requestURI);
+            return true;
+        }
+
         log.debug("Authorization Header: {}", request.getHeader("Authorization"));
 
         String token = request.getHeader("Authorization");

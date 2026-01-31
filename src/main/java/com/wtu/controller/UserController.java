@@ -2,11 +2,12 @@ package com.wtu.controller;
 
 import com.wtu.DTO.UserDTO;
 import com.wtu.DTO.UserLoginDTO;
-import com.wtu.DTO.UserRegisterDTO;
 import com.wtu.DTO.UserModifyDTO;
+import com.wtu.DTO.UserRegisterDTO;
 import com.wtu.entity.User;
 import com.wtu.result.Result;
 import com.wtu.service.IUserService;
+import com.wtu.utils.JwtUtils;
 import com.wtu.vo.UserLoginVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final IUserService userService;
+    private final JwtUtils jwtUtils;
 
     // 用户登录
     @PostMapping("/login")
@@ -69,9 +71,13 @@ public class UserController {
                 .userType(userRegisterDTO.getUserType())
                 .phone(userRegisterDTO.getPhone())
                 .build();
-        
+
         User user = userService.register(userDTO);
-        
+
+        // 注册成功后生成 Token
+        String token = jwtUtils.generateToken(user.getUsername());
+        user.setToken(token);
+
         // 转换为 VO，隐藏密码
         UserLoginVO userLoginVO = UserLoginVO.builder()
                 .id(user.getId())
@@ -79,8 +85,9 @@ public class UserController {
                 .phone(user.getPhone())
                 .userType(user.getUserType())
                 .avatar(user.getAvatar())
+                .token(token)
                 .build();
-        
+
         return Result.success(userLoginVO);
     }
 

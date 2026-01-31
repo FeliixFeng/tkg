@@ -207,9 +207,9 @@ export default {
     async fetchUserName(userId) {
       try {
         const response = await axios.get(`/api/user/get_name/${userId}`);
-        const data = await response.json();
+        const data = response.data;
 
-        if (response.ok && data.code === 1) {
+        if (data.code === 1) {
           return data.data;
         } else {
           console.error('Failed to fetch user name:', data);
@@ -226,17 +226,17 @@ export default {
     async fetchEntityData(id) {
       try {
         const response = await axios.get(`/api/entity/${id}`);
-        const data = await response.json();
+        const data = response.data;
 
-        if (response.ok && data.code === 1) {
+        if (data.code === 1) {
           const userName = await this.fetchUserName(data.data.userId);
           let parentNodeName = "这是一个根节点";
           
           if (data.data.parentId) {
             const parentResponse = await axios.get(`/api/entity/${data.data.parentId}`);
-            const parentData = await parentResponse.json();
+            const parentData = parentResponse.data;
             
-            if (parentResponse.ok && parentData.code === 1) {
+            if (parentData.code === 1) {
               parentNodeName = parentData.data.name;
             } else {
               console.error('Failed to fetch parent node name:', parentData);
@@ -290,6 +290,7 @@ export default {
         const response = await axios.put(`/api/entity/check_ok/${this.selectedItem.id}`);
         if (response.data.code === 1) {
           alert('审批成功');
+          this.fetchUncheckedPaginatedResults(this.uncheckedCurrentPage, this.pageSize);
         }
       } catch (error) {
         console.error('Error approving item:', error);

@@ -59,7 +59,7 @@ public class UserServiceImpl implements IUserService {
         String password = userDTO.getPassword();
         Integer userType = userDTO.getUserType();
         String phone = userDTO.getPhone();
-        
+
         // 查询用户是否存在
         User user = userMapper.selectByUsername(username);
 
@@ -67,10 +67,10 @@ public class UserServiceImpl implements IUserService {
         if(user != null){
             throw new BusinessException(MessageConstant.USER_ALREADY_EXISTS);
         }
-        
+
         // 加密密码
         String encodedPassword = passwordEncoder.encode(password);
-        
+
         // 创建新用户
         User newUser = User.builder()
                 .username(username)
@@ -82,6 +82,11 @@ public class UserServiceImpl implements IUserService {
         // 调用 Mapper 注册用户并获取ID
         int id = userMapper.register(newUser);
         newUser.setId(id);
+
+        // 注册成功后生成 JWT Token
+        String token = jwtUtils.generateToken(username);
+        newUser.setToken(token);
+
         return newUser;
     }
 
